@@ -1,5 +1,12 @@
 # dlt-parentsquare
 
+[![CI](https://github.com/joebeeson/dlt-parentsquare/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/joebeeson/dlt-parentsquare/actions/workflows/ci.yml)
+[![Prek](https://github.com/joebeeson/dlt-parentsquare/actions/workflows/prek.yml/badge.svg?branch=master)](https://github.com/joebeeson/dlt-parentsquare/actions/workflows/prek.yml)
+[![CodeQL](https://github.com/joebeeson/dlt-parentsquare/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/joebeeson/dlt-parentsquare/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/joebeeson/dlt-parentsquare/badge)](https://securityscorecards.dev/viewer/?uri=github.com/joebeeson/dlt-parentsquare)
+[![Latest release](https://img.shields.io/github/v/release/joebeeson/dlt-parentsquare?sort=semver)](https://github.com/joebeeson/dlt-parentsquare/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 An unofficial, read-only [dlt](https://dlthub.com/) source for ParentSquare
 posts and calendar events. The reusable HTTP client lives in the separate
 [`parentsquare-client`](https://github.com/joebeeson/parentsquare-client)
@@ -45,3 +52,10 @@ credentials or cookies; the embedding application owns that storage policy.
 This is an early alpha. Reads only are implemented. Replies, acknowledgements,
 forms, sign-ups, payments, attachments, and action extraction are deliberately
 out of scope.
+
+## Development
+
+Run `uv run --extra dev --extra dlt pytest` for the test suite. Install `prek`
+with `uvx prek install` to run the same checks as CI. Tagged releases create
+GitHub release artifacts, and the publish workflow supports PyPI Trusted
+Publishing plus manual TestPyPI verification.

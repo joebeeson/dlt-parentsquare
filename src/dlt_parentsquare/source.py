@@ -5,9 +5,7 @@ from __future__ import annotations
 try:
     import dlt
 except ImportError as exc:  # pragma: no cover - installation concern
-    raise ImportError(
-        "Install dlt-parentsquare[dlt] to use the ParentSquare dlt source"
-    ) from exc
+    raise ImportError("Install dlt-parentsquare[dlt] to use the ParentSquare dlt source") from exc
 
 from parentsquare import AsyncParentSquareClient
 

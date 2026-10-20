@@ -6,7 +6,6 @@ import dlt
 
 from dlt_parentsquare import parentsquare
 
-
 pipeline = dlt.pipeline(
     pipeline_name="parentsquare",
     destination="duckdb",

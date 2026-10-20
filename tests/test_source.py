@@ -1,9 +1,8 @@
 import pytest
 
-
 dlt = pytest.importorskip("dlt")
 
-from dlt_parentsquare import parentsquare
+from dlt_parentsquare import parentsquare  # noqa: E402
 
 
 def test_source_exposes_posts_and_calendar_resources() -> None:
