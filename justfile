@@ -7,16 +7,16 @@ install:
 
 test:
     uv run python -c "from pathlib import Path; Path('artifacts').mkdir(exist_ok=True)"
-    uv run pytest --junitxml=artifacts/junit.xml --cov=dlt_parentsquare --cov-report=term-missing --cov-report=xml:artifacts/coverage.xml
+    uv run --extra dev --extra dlt pytest --junitxml=artifacts/junit.xml --cov=dlt_parentsquare --cov-report=term-missing --cov-report=xml:artifacts/coverage.xml
 
 lint:
-    uv run --extra dlt ruff check .
+    uv run --extra dev --extra dlt ruff check .
 
 format:
-    uv run --extra dlt ruff format --check .
+    uv run --extra dev --extra dlt ruff format --check .
 
 typecheck:
-    uv run --extra dlt pyrefly check
+    uv run --extra dev --extra dlt pyrefly check
 
 prek:
     uvx prek run --all-files
