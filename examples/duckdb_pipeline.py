@@ -1,6 +1,4 @@
-"""Load synthetic or live ParentSquare data into a local DuckDB database."""
-
-import os
+"""Load ParentSquare data into a local DuckDB database."""
 
 import dlt
 
@@ -11,10 +9,5 @@ pipeline = dlt.pipeline(
     destination="duckdb",
     dataset_name="school",
 )
-load_info = pipeline.run(
-    parentsquare(
-        username=os.environ["PARENTSQUARE_USERNAME"],
-        password=os.environ["PARENTSQUARE_PASSWORD"],
-    )
-)
+load_info = pipeline.run(parentsquare())
 print(load_info)

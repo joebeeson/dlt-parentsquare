@@ -25,6 +25,22 @@ Install the dlt adapter:
 pip install "dlt-parentsquare[dlt] @ git+https://github.com/joebeeson/dlt-parentsquare.git@v0.1.1"
 ```
 
+Configure the source through dlt's providers. For a local pipeline, copy
+`.dlt/secrets.toml.example` to `.dlt/secrets.toml` and fill in the ParentSquare
+credentials. Keep that file out of version control:
+
+```toml
+[sources.parentsquare]
+username = "parent@example.com"
+password = "replace-me"
+```
+
+The same values can be supplied as `SOURCES__PARENTSQUARE__USERNAME` and
+`SOURCES__PARENTSQUARE__PASSWORD` environment variables. A nonsecret
+`base_url` option may go in `.dlt/config.toml` or
+`SOURCES__PARENTSQUARE__BASE_URL`. See [configuration](docs/configuration.md)
+for the provider layout and MFA guidance.
+
 Then run the source:
 
 ```python
@@ -32,7 +48,7 @@ import dlt
 from dlt_parentsquare import parentsquare
 
 pipeline = dlt.pipeline("parentsquare", destination="duckdb", dataset_name="school")
-pipeline.run(parentsquare(username="parent@example.com", password="password"))
+pipeline.run(parentsquare())
 ```
 
 The source exposes `posts` and `calendar_events` resources. IDs are stable
@@ -40,6 +56,11 @@ within ParentSquare's account and are used as merge keys. A local DuckDB
 example is in `examples/duckdb_pipeline.py`. Synthetic fixtures are used in
 tests; real messages, cookies, credentials, and calendar URLs must never be
 committed.
+
+The resources use `merge` with stable IDs because the ParentSquare web
+interface does not expose a reliable updated-at cursor. Each run re-reads the
+bounded feed and lets dlt merge edited records without losing changes. This is
+deliberate: adding a timestamp cursor here could skip an edited post.
 
 ## Authentication
 

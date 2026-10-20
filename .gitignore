@@ -2,7 +2,10 @@
 __pycache__/
 .pytest_cache/
 *.py[cod]
-.dlt/
+.dlt/*
+!.dlt/
+!.dlt/config.toml.example
+!.dlt/secrets.toml.example
 *.duckdb
 dist/
 build/
