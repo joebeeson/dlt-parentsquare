@@ -19,7 +19,7 @@ dependencies = [
 dlt = ["dlt>=1.31,<2"]
 duckdb = ["dlt>=1.31,<2", "duckdb>=1.1,<2"]
 dev = [
-  "pytest>=8,<9",
+  "pytest>=8,<10",
   "pytest-cov>=6,<8",
   "pytest-datadir>=1,<2",
   "pytest-asyncio>=0.24,<1",
