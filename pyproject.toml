@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dlt-parentsquare"
-version = "0.2.1"
+version = "0.2.2"
 description = "dlt resources for the shared ParentSquare client"
 readme = "README.md"
 license = { text = "MIT" }
@@ -12,7 +12,7 @@ requires-python = ">=3.12"
 authors = [{ name = "Joe Beeson" }]
 keywords = ["parentsquare", "dlt", "school", "calendar"]
 dependencies = [
-  "parentsquare-client>=0.2.1,<0.3",
+  "parentsquare-client>=0.2.4,<0.3",
 ]
 
 [project.optional-dependencies]
@@ -35,7 +35,7 @@ Issues = "https://github.com/joebeeson/dlt-parentsquare/issues"
 # uv-only development override. Build metadata still contains the normal
 # PyPI dependency above, so published users resolve the released client.
 [tool.uv.sources]
-parentsquare-client = { git = "https://github.com/joebeeson/parentsquare-client.git", tag = "v0.2.1" }
+parentsquare-client = { git = "https://github.com/joebeeson/parentsquare-client.git", tag = "v0.2.4" }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dlt_parentsquare"]

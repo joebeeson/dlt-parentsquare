@@ -56,10 +56,13 @@ The source exposes `posts` and `calendar_events` by default. Parent-visible
 `schools`, `students`, `student_dashboards`, and `groups` resources are
 available with `parentsquare(include_context=True)`. Context resources are
 opt-in because they contain household and school-directory data. IDs are
-stable within ParentSquare's account and are used as merge keys. A local
-DuckDB example is in `examples/duckdb_pipeline.py`. Synthetic fixtures are
-used in tests; real messages, cookies, credentials, student records, and
-calendar URLs must never be committed.
+stable within ParentSquare's account and are used as merge keys. Each group
+record includes `student_ids`; join those values to `students.id` to attach a
+group to the linked student names without copying names into every group row.
+The same relationship can be used to filter a downstream school or group
+view. A local DuckDB example is in `examples/duckdb_pipeline.py`. Synthetic
+fixtures are used in tests; real messages, cookies, credentials, student
+records, and calendar URLs must never be committed.
 
 The resources use `merge` with stable IDs because the ParentSquare web
 interface does not expose a reliable updated-at cursor. Each run re-reads the

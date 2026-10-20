@@ -93,8 +93,13 @@ def test_context_resources_are_explicit_opt_in(monkeypatch: pytest.MonkeyPatch) 
                 ("Teacher",),
             )
 
-        async def fetch_groups(self, school: School) -> list[Group]:
-            return [Group(55, "Cooking Club", school.id, school.name)]
+        async def fetch_groups(
+            self, school: School, *, students: list[Student] | None = None
+        ) -> list[Group]:
+            assert students == [
+                Student(7, "Synthetic student", 101, "Synthetic school", "7th Grade")
+            ]
+            return [Group(55, "Cooking Club", school.id, school.name, student_ids=(7,))]
 
     monkeypatch.setattr(source_module, "AsyncParentSquareClient", FakeClient)
     source = parentsquare("user@example.com", "secret", include_context=True)
@@ -106,3 +111,48 @@ def test_context_resources_are_explicit_opt_in(monkeypatch: pytest.MonkeyPatch) 
         "student_dashboards",
         "groups",
     }
+
+
+def test_groups_resource_preserves_student_relationships(monkeypatch: pytest.MonkeyPatch) -> None:
+    class FakeClient:
+        def __init__(self, username: str, password: str, *, base_url: str) -> None:
+            pass
+
+        async def ensure_authenticated(self) -> None:
+            pass
+
+        async def close(self) -> None:
+            pass
+
+        async def discover_students(self) -> list[Student]:
+            return [Student(7, "Synthetic student", 101, "Synthetic school", "7th Grade")]
+
+        async def discover_schools(self) -> list[School]:
+            return [School(101, "Synthetic school")]
+
+        async def fetch_groups(
+            self, school: School, *, students: list[Student] | None = None
+        ) -> list[Group]:
+            assert students is not None
+            return [
+                Group(55, "Cooking Club", school.id, school.name, student_ids=(students[0].id,))
+            ]
+
+    monkeypatch.setattr(source_module, "AsyncParentSquareClient", FakeClient)
+    source = parentsquare("user@example.com", "secret", include_context=True)
+    records = list(source.resources["groups"])
+
+    assert records == [
+        {
+            "id": 55,
+            "name": "Cooking Club",
+            "school_id": 101,
+            "school_name": "Synthetic school",
+            "member_count": None,
+            "description": None,
+            "post_count": None,
+            "student_ids": [7],
+            "category": None,
+            "visibility": None,
+        }
+    ]

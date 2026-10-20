@@ -15,7 +15,7 @@ secrets. Configure the `pypi` GitHub environment with an approval rule if
 published releases should wait for a final review.
 
 Publish `parentsquare-client` first. The dlt package declares it as a normal
-PyPI dependency (`>=0.2.1,<0.3`), so the client version must be visible on the
+PyPI dependency (`>=0.2.4,<0.3`), so the client version must be visible on the
 target index before dlt's lockfile is refreshed and dlt is published.
 
 For a rehearsal, publish the client to TestPyPI, refresh and test dlt against

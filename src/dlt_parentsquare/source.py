@@ -125,10 +125,17 @@ async def groups(
     mfa_code: TSecretStrValue | None = None,
     base_url: str = "https://www.parentsquare.com",
 ):
-    """Yield groups visible within each school."""
+    """Yield groups and their linked ParentSquare student IDs.
+
+    The ``student_ids`` list is a stable relationship field. Join it to the
+    ``students`` resource's ``id`` column when a downstream model needs names
+    or school context; names are intentionally kept in the student dimension
+    instead of duplicated on every group row.
+    """
     async with _client(username, password, mfa_code=mfa_code, base_url=base_url) as client:
+        linked_students = await client.discover_students()
         for school in await client.discover_schools():
-            for group in await client.fetch_groups(school):
+            for group in await client.fetch_groups(school, students=linked_students):
                 yield group.to_record()
 
 

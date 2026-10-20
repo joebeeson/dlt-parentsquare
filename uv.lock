@@ -502,7 +502,7 @@ wheels = [
 
 [[package]]
 name = "dlt-parentsquare"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "." }
 dependencies = [
     { name = "parentsquare-client" },
@@ -530,7 +530,7 @@ requires-dist = [
     { name = "dlt", marker = "extra == 'dlt'", specifier = ">=1.31,<2" },
     { name = "dlt", marker = "extra == 'duckdb'", specifier = ">=1.31,<2" },
     { name = "duckdb", marker = "extra == 'duckdb'", specifier = ">=1.1,<2" },
-    { name = "parentsquare-client", git = "https://github.com/joebeeson/parentsquare-client.git?tag=v0.2.1" },
+    { name = "parentsquare-client", git = "https://github.com/joebeeson/parentsquare-client.git?tag=v0.2.4" },
     { name = "pyrefly", marker = "extra == 'dev'", specifier = ">=1.4,<2" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.3,<10" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=1,<2" },
@@ -967,8 +967,8 @@ wheels = [
 
 [[package]]
 name = "parentsquare-client"
-version = "0.2.1"
-source = { git = "https://github.com/joebeeson/parentsquare-client.git?tag=v0.2.1#266525549e5ca7b903474a467c5cd18fdf17075a" }
+version = "0.2.4"
+source = { git = "https://github.com/joebeeson/parentsquare-client.git?tag=v0.2.4#6754ce71c7994b268127f101d742f8f531c19e39" }
 dependencies = [
     { name = "aiohttp" },
     { name = "beautifulsoup4" },
