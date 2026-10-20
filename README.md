@@ -1,0 +1,47 @@
+# dlt-parentsquare
+
+An unofficial, read-only [dlt](https://dlthub.com/) source for ParentSquare
+posts and calendar events. The reusable HTTP client lives in the separate
+[`parentsquare-client`](https://github.com/joebeeson/parentsquare-client)
+repository so applications can use it without installing dlt.
+
+ParentSquare does not publish a parent-facing API. This project reads the
+authenticated parent web experience and therefore may stop working when
+ParentSquare changes its site or account protections. It is not affiliated with
+or endorsed by ParentSquare, Inc. Review ParentSquare's current terms and your
+district's policies before using it.
+
+Install the dlt adapter:
+
+```python
+pip install 'dlt-parentsquare[dlt]'
+```
+
+Then run the source:
+
+```python
+import dlt
+from dlt_parentsquare import parentsquare
+
+pipeline = dlt.pipeline("parentsquare", destination="duckdb", dataset_name="school")
+pipeline.run(parentsquare(username="parent@example.com", password="password"))
+```
+
+The source exposes `posts` and `calendar_events` resources. IDs are stable
+within ParentSquare's account and are used as merge keys. A local DuckDB
+example is in `examples/duckdb_pipeline.py`. Synthetic fixtures are used in
+tests; real messages, cookies, credentials, and calendar URLs must never be
+committed.
+
+## Authentication
+
+The shared client supports the normal sign-in flow and a six-digit MFA
+challenge. An embedding application handles `MFARequired` by presenting the
+masked destination and calling `submit_mfa_code`. The client does not persist
+credentials or cookies; the embedding application owns that storage policy.
+
+## Status
+
+This is an early alpha. Reads only are implemented. Replies, acknowledgements,
+forms, sign-ups, payments, attachments, and action extraction are deliberately
+out of scope.
