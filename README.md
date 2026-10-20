@@ -59,3 +59,6 @@ Run `uv run --extra dev --extra dlt pytest` for the test suite. Install `prek`
 with `uvx prek install` to run the same checks as CI. Tagged releases create
 GitHub release artifacts, and the publish workflow supports PyPI Trusted
 Publishing plus manual TestPyPI verification.
+
+See [docs/releasing.md](docs/releasing.md) for the one-time Trusted Publisher
+configuration and tag workflow.
