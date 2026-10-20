@@ -22,7 +22,7 @@ district's policies before using it.
 Install the dlt adapter:
 
 ```python
-pip install "dlt-parentsquare[dlt] @ git+https://github.com/joebeeson/dlt-parentsquare.git@v0.1.1"
+pip install "dlt-parentsquare[dlt] @ git+https://github.com/joebeeson/dlt-parentsquare.git@v0.2.0"
 ```
 
 Configure the source through dlt's providers. For a local pipeline, copy
@@ -51,11 +51,14 @@ pipeline = dlt.pipeline("parentsquare", destination="duckdb", dataset_name="scho
 pipeline.run(parentsquare())
 ```
 
-The source exposes `posts` and `calendar_events` resources. IDs are stable
-within ParentSquare's account and are used as merge keys. A local DuckDB
-example is in `examples/duckdb_pipeline.py`. Synthetic fixtures are used in
-tests; real messages, cookies, credentials, and calendar URLs must never be
-committed.
+The source exposes `posts` and `calendar_events` by default. Parent-visible
+`schools`, `students`, `student_dashboards`, and `groups` resources are
+available with `parentsquare(include_context=True)`. Context resources are
+opt-in because they contain household and school-directory data. IDs are
+stable within ParentSquare's account and are used as merge keys. A local
+DuckDB example is in `examples/duckdb_pipeline.py`. Synthetic fixtures are
+used in tests; real messages, cookies, credentials, student records, and
+calendar URLs must never be committed.
 
 The resources use `merge` with stable IDs because the ParentSquare web
 interface does not expose a reliable updated-at cursor. Each run re-reads the

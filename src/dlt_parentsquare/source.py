@@ -71,6 +71,63 @@ async def calendar_events(
             yield event.to_record()
 
 
+@dlt.resource(name="schools", write_disposition="replace", primary_key="id")
+async def schools(
+    username: str = dlt.secrets.value,
+    password: str = dlt.secrets.value,
+    *,
+    mfa_code: TSecretStrValue | None = None,
+    base_url: str = "https://www.parentsquare.com",
+):
+    """Yield schools visible to the authenticated parent account."""
+    async with _client(username, password, mfa_code=mfa_code, base_url=base_url) as client:
+        for school in await client.discover_schools():
+            yield school.to_record()
+
+
+@dlt.resource(name="students", write_disposition="replace", primary_key="id")
+async def students(
+    username: str = dlt.secrets.value,
+    password: str = dlt.secrets.value,
+    *,
+    mfa_code: TSecretStrValue | None = None,
+    base_url: str = "https://www.parentsquare.com",
+):
+    """Yield only students linked to the authenticated parent account."""
+    async with _client(username, password, mfa_code=mfa_code, base_url=base_url) as client:
+        for student in await client.discover_students():
+            yield student.to_record()
+
+
+@dlt.resource(name="student_dashboards", write_disposition="replace", primary_key="student_id")
+async def student_dashboards(
+    username: str = dlt.secrets.value,
+    password: str = dlt.secrets.value,
+    *,
+    mfa_code: TSecretStrValue | None = None,
+    base_url: str = "https://www.parentsquare.com",
+):
+    """Yield parent-visible school, class, and teacher context for each student."""
+    async with _client(username, password, mfa_code=mfa_code, base_url=base_url) as client:
+        for student in await client.discover_students():
+            yield (await client.fetch_student_dashboard(student)).to_record()
+
+
+@dlt.resource(name="groups", write_disposition="replace", primary_key="id")
+async def groups(
+    username: str = dlt.secrets.value,
+    password: str = dlt.secrets.value,
+    *,
+    mfa_code: TSecretStrValue | None = None,
+    base_url: str = "https://www.parentsquare.com",
+):
+    """Yield groups visible within each school."""
+    async with _client(username, password, mfa_code=mfa_code, base_url=base_url) as client:
+        for school in await client.discover_schools():
+            for group in await client.fetch_groups(school):
+                yield group.to_record()
+
+
 @dlt.source(name="parentsquare")
 def parentsquare(
     username: str = dlt.secrets.value,
@@ -78,14 +135,28 @@ def parentsquare(
     *,
     mfa_code: TSecretStrValue | None = None,
     base_url: str = "https://www.parentsquare.com",
+    include_context: bool = False,
 ):
-    """Return the posts and calendar event resources.
+    """Return the default posts and calendar resources.
 
     ``username`` and ``password`` are required secrets when omitted. An MFA
     code is optional and should normally be passed for a single run rather
-    than stored as a long-lived pipeline setting.
+    than stored as a long-lived pipeline setting. Set ``include_context=True``
+    to explicitly include parent-visible schools, students, dashboards, and
+    groups. Context resources are opt-in because they contain household and
+    school-directory data.
     """
-    return [
+    resources = [
         posts(username, password, mfa_code=mfa_code, base_url=base_url),
         calendar_events(username, password, mfa_code=mfa_code, base_url=base_url),
     ]
+    if include_context:
+        resources.extend(
+            [
+                schools(username, password, mfa_code=mfa_code, base_url=base_url),
+                students(username, password, mfa_code=mfa_code, base_url=base_url),
+                student_dashboards(username, password, mfa_code=mfa_code, base_url=base_url),
+                groups(username, password, mfa_code=mfa_code, base_url=base_url),
+            ]
+        )
+    return resources

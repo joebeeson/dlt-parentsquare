@@ -1,10 +1,21 @@
 import pytest
 
+# dlt is an optional test extra; imports below intentionally follow importorskip.
+# ruff: noqa: E402
+
 dlt = pytest.importorskip("dlt")
 
 from dlt_parentsquare import parentsquare  # noqa: E402
 from dlt_parentsquare import source as source_module  # noqa: E402
-from parentsquare import MFARequired, Post  # noqa: E402
+from parentsquare import (
+    Group,
+    MFARequired,
+    Post,
+    School,
+    Student,
+    StudentClass,
+    StudentDashboard,
+)  # noqa: E402
 
 
 def test_source_exposes_posts_and_calendar_resources() -> None:
@@ -52,3 +63,46 @@ def test_source_uses_dlt_secret_and_config_providers(monkeypatch: pytest.MonkeyP
 
     assert records[0]["id"] == "post-1"
     assert calls == [("parent@example.com", "secret", "https://fixture.test", "123456")]
+
+
+def test_context_resources_are_explicit_opt_in(monkeypatch: pytest.MonkeyPatch) -> None:
+    class FakeClient:
+        def __init__(self, username: str, password: str, *, base_url: str) -> None:
+            pass
+
+        async def ensure_authenticated(self) -> None:
+            pass
+
+        async def close(self) -> None:
+            pass
+
+        async def discover_schools(self) -> list[School]:
+            return [School(101, "Synthetic school")]
+
+        async def discover_students(self) -> list[Student]:
+            return [Student(7, "Synthetic student", 101, "Synthetic school", "7th Grade")]
+
+        async def fetch_student_dashboard(self, student: Student) -> StudentDashboard:
+            return StudentDashboard(
+                student.id,
+                student.name,
+                student.school_id,
+                student.school_name,
+                student.grade_level,
+                (StudentClass("Science", ("Teacher",)),),
+                ("Teacher",),
+            )
+
+        async def fetch_groups(self, school: School) -> list[Group]:
+            return [Group(55, "Cooking Club", school.id, school.name)]
+
+    monkeypatch.setattr(source_module, "AsyncParentSquareClient", FakeClient)
+    source = parentsquare("user@example.com", "secret", include_context=True)
+    assert set(source.resources) == {
+        "posts",
+        "calendar_events",
+        "schools",
+        "students",
+        "student_dashboards",
+        "groups",
+    }

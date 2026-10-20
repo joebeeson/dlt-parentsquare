@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dlt-parentsquare"
-version = "0.1.1"
+version = "0.2.0"
 description = "dlt resources for the shared ParentSquare client"
 readme = "README.md"
 license = { text = "MIT" }
@@ -12,7 +12,7 @@ requires-python = ">=3.12"
 authors = [{ name = "Joe Beeson" }]
 keywords = ["parentsquare", "dlt", "school", "calendar"]
 dependencies = [
-  "parentsquare-client @ git+https://github.com/joebeeson/parentsquare-client.git@v0.1.1",
+  "parentsquare-client @ git+https://github.com/joebeeson/parentsquare-client.git@v0.2.1",
 ]
 
 [project.optional-dependencies]
@@ -20,7 +20,10 @@ dlt = ["dlt>=1.31,<2"]
 duckdb = ["dlt>=1.31,<2", "duckdb>=1.1,<2"]
 dev = [
   "pytest>=8,<9",
+  "pytest-cov>=6,<8",
+  "pytest-datadir>=1,<2",
   "pytest-asyncio>=0.24,<1",
+  "pyrefly>=1.4,<2",
   "ruff>=0.8,<1",
 ]
 
@@ -45,3 +48,8 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.pyrefly]
+project-includes = [
+    "src/**/*.py",
+]
