@@ -1,7 +1,7 @@
 import pytest
 
 # dlt is an optional test extra; imports below intentionally follow importorskip.
-# ruff: noqa: E402
+# ruff: noqa: E402, I001
 
 dlt = pytest.importorskip("dlt")
 

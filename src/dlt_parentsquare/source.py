@@ -8,6 +8,10 @@ for scripts and tests.
 
 from __future__ import annotations
 
+# The optional dlt import and the external client import form one runtime
+# dependency group; keep this ordering stable across Ruff platform resolvers.
+# ruff: noqa: I001
+
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
