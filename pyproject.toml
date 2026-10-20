@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dlt-parentsquare"
-version = "0.1.0"
+version = "0.1.1"
 description = "dlt resources for the shared ParentSquare client"
 readme = "README.md"
 license = { text = "MIT" }
@@ -12,7 +12,7 @@ requires-python = ">=3.12"
 authors = [{ name = "Joe Beeson" }]
 keywords = ["parentsquare", "dlt", "school", "calendar"]
 dependencies = [
-  "parentsquare-client @ git+https://github.com/joebeeson/parentsquare-client.git@v0.1.0",
+  "parentsquare-client @ git+https://github.com/joebeeson/parentsquare-client.git@v0.1.1",
 ]
 
 [project.optional-dependencies]
