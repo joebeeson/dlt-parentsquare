@@ -14,7 +14,7 @@ district's policies before using it.
 Install the dlt adapter:
 
 ```python
-pip install 'dlt-parentsquare[dlt]'
+pip install "dlt-parentsquare[dlt] @ git+https://github.com/joebeeson/dlt-parentsquare.git@v0.1.1"
 ```
 
 Then run the source:
