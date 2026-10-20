@@ -12,7 +12,7 @@ requires-python = ">=3.12"
 authors = [{ name = "Joe Beeson" }]
 keywords = ["parentsquare", "dlt", "school", "calendar"]
 dependencies = [
-  "parentsquare-client @ git+https://github.com/joebeeson/parentsquare-client.git@v0.2.1",
+  "parentsquare-client>=0.2.1,<0.3",
 ]
 
 [project.optional-dependencies]
@@ -31,6 +31,11 @@ dev = [
 Homepage = "https://github.com/joebeeson/dlt-parentsquare"
 Repository = "https://github.com/joebeeson/dlt-parentsquare"
 Issues = "https://github.com/joebeeson/dlt-parentsquare/issues"
+
+# uv-only development override. Build metadata still contains the normal
+# PyPI dependency above, so published users resolve the released client.
+[tool.uv.sources]
+parentsquare-client = { git = "https://github.com/joebeeson/parentsquare-client.git", tag = "v0.2.1" }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dlt_parentsquare"]

@@ -22,7 +22,8 @@ district's policies before using it.
 Install the dlt adapter:
 
 ```python
-pip install "dlt-parentsquare[dlt] @ git+https://github.com/joebeeson/dlt-parentsquare.git@v0.2.1"
+pip install "dlt-parentsquare[dlt]"
+uv add "dlt-parentsquare[dlt]"
 ```
 
 Configure the source through dlt's providers. For a local pipeline, copy
