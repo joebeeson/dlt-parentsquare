@@ -68,3 +68,9 @@ pipeline.run(
 The source uses the shared `parentsquare-client` for HTTP, login, MFA, session
 renewal, pagination, and response parsing. `dlt-parentsquare` only adapts the
 client's records to dlt resources; it does not create a second HTTP client.
+
+The default source includes school posts, group posts, and school calendar
+events. Group posts have a feed-scoped `source_id` so the same ParentSquare
+post can safely exist in both a school feed and a group feed. Pass
+`include_context=True` to also load schools, students, dashboards, groups, and
+school feature metadata.

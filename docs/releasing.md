@@ -29,7 +29,9 @@ that index, then publish both final versions to PyPI in dependency order.
 4. Commit the version change and push a tag such as `v0.1.2`.
 5. The tag workflow runs tests, builds the wheel and source archive, and creates
    the GitHub release with generated notes.
-6. Publishing the GitHub release triggers the Trusted Publishing workflow.
+6. Manually dispatch the publish workflow with the `pypi` target after the
+   release has passed its final review. Releases created with `GITHUB_TOKEN`
+   do not re-trigger another workflow through the release event.
 
 Use the manual `Publish to Python Package Index` workflow with the `testpypi`
 target for a release candidate such as `0.1.2rc1`.

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dlt-parentsquare"
-version = "0.2.2"
+version = "0.3.0"
 description = "dlt resources for the shared ParentSquare client"
 readme = "README.md"
 license = { text = "MIT" }

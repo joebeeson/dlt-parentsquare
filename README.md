@@ -52,17 +52,25 @@ pipeline = dlt.pipeline("parentsquare", destination="duckdb", dataset_name="scho
 pipeline.run(parentsquare())
 ```
 
-The source exposes `posts` and `calendar_events` by default. Parent-visible
-`schools`, `students`, `student_dashboards`, and `groups` resources are
-available with `parentsquare(include_context=True)`. Context resources are
-opt-in because they contain household and school-directory data. IDs are
-stable within ParentSquare's account and are used as merge keys. Each group
-record includes `student_ids`; join those values to `students.id` to attach a
-group to the linked student names without copying names into every group row.
-The same relationship can be used to filter a downstream school or group
-view. A local DuckDB example is in `examples/duckdb_pipeline.py`. Synthetic
-fixtures are used in tests; real messages, cookies, credentials, student
-records, and calendar URLs must never be committed.
+The source exposes `posts`, `group_posts`, and `calendar_events` by default.
+`posts` contains school-feed posts. `group_posts` contains the corresponding
+group feeds and uses a feed-scoped `source_id` (`school:<id>:group:<id>:post:<id>`)
+so a post visible in both feeds is not collapsed during a merge. Parent-visible
+`schools`, `students`, `student_dashboards`, `groups`, and `school_features`
+resources are available with `parentsquare(include_context=True)`. Context
+resources are opt-in because they contain household and school-directory data.
+IDs are stable within ParentSquare's account and are used as merge keys. Each
+group record includes `student_ids`; join those values to `students.id` to
+attach a group to the linked student names without copying names into every
+group row. The same relationship can be used to filter a downstream school or
+group view. A local DuckDB example is in `examples/duckdb_pipeline.py`.
+Synthetic fixtures are used in tests; real messages, cookies, credentials,
+student records, and calendar URLs must never be committed.
+
+The `pages` argument controls the bounded number of pages read from each
+school and group feed, for example `parentsquare(pages=3)`. ParentSquare does
+not expose a stable cursor, so each run deliberately re-reads the selected
+page window and merges edited records.
 
 The resources use `merge` with stable IDs because the ParentSquare web
 interface does not expose a reliable updated-at cursor. Each run re-reads the

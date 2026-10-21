@@ -20,7 +20,7 @@ from parentsquare import (
 
 def test_source_exposes_posts_and_calendar_resources() -> None:
     source = parentsquare("user@example.com", "secret")
-    assert set(source.resources) == {"posts", "calendar_events"}
+    assert set(source.resources) == {"posts", "group_posts", "calendar_events"}
 
 
 def test_source_uses_dlt_secret_and_config_providers(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -36,7 +36,12 @@ def test_source_uses_dlt_secret_and_config_providers(monkeypatch: pytest.MonkeyP
         async def submit_mfa_code(self, code: str) -> None:
             calls[-1] = (*calls[-1][:3], code)
 
-        async def fetch_all_posts(self) -> list[Post]:
+        async def discover_schools(self) -> list[School]:
+            return [School(101, "Synthetic school")]
+
+        async def fetch_posts(self, school: School, *, pages: int = 1) -> list[Post]:
+            assert school == School(101, "Synthetic school")
+            assert pages == 1
             return [
                 Post(
                     id="post-1",
@@ -48,6 +53,9 @@ def test_source_uses_dlt_secret_and_config_providers(monkeypatch: pytest.MonkeyP
                     school_name="Synthetic school",
                 )
             ]
+
+        async def discover_students(self) -> list[Student]:
+            return []
 
         async def close(self) -> None:
             pass
@@ -105,11 +113,13 @@ def test_context_resources_are_explicit_opt_in(monkeypatch: pytest.MonkeyPatch) 
     source = parentsquare("user@example.com", "secret", include_context=True)
     assert set(source.resources) == {
         "posts",
+        "group_posts",
         "calendar_events",
         "schools",
         "students",
         "student_dashboards",
         "groups",
+        "school_features",
     }
 
 
@@ -154,5 +164,72 @@ def test_groups_resource_preserves_student_relationships(monkeypatch: pytest.Mon
             "student_ids": [7],
             "category": None,
             "visibility": None,
+        }
+    ]
+
+
+def test_group_posts_use_feed_scoped_merge_keys(monkeypatch: pytest.MonkeyPatch) -> None:
+    school = School(101, "Synthetic school")
+    group = Group(55, "Cooking Club", school.id, school.name, student_ids=(7,))
+    post = Post(
+        id="post-1",
+        title="Club meeting",
+        author="Teacher",
+        published_at=None,
+        source_url="https://example.test/groups/55/posts/post-1",
+        school_id=school.id,
+        school_name=school.name,
+        group_id=group.id,
+        group_name=group.name,
+    )
+
+    class FakeClient:
+        def __init__(self, username: str, password: str, *, base_url: str) -> None:
+            pass
+
+        async def ensure_authenticated(self) -> None:
+            pass
+
+        async def close(self) -> None:
+            pass
+
+        async def discover_students(self) -> list[Student]:
+            return [Student(7, "Synthetic student", school.id, school.name, "7th Grade")]
+
+        async def discover_schools(self) -> list[School]:
+            return [school]
+
+        async def fetch_groups(
+            self, selected_school: School, *, students: list[Student] | None = None
+        ) -> list[Group]:
+            assert selected_school == school
+            assert students is not None
+            return [group]
+
+        async def fetch_group_posts(
+            self, selected_school: School, selected_group: Group, *, pages: int = 1
+        ) -> list[Post]:
+            assert selected_school == school
+            assert selected_group == group
+            assert pages == 1
+            return [post]
+
+    monkeypatch.setattr(source_module, "AsyncParentSquareClient", FakeClient)
+    source = parentsquare("user@example.com", "secret")
+    records = list(source.resources["group_posts"])
+
+    assert records == [
+        {
+            "id": "post-1",
+            "title": "Club meeting",
+            "author": "Teacher",
+            "published_at": None,
+            "source_url": "https://example.test/groups/55/posts/post-1",
+            "school_id": 101,
+            "school_name": "Synthetic school",
+            "summary": None,
+            "group_id": 55,
+            "group_name": "Cooking Club",
+            "source_id": "school:101:group:55:post:post-1",
         }
     ]

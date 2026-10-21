@@ -54,11 +54,41 @@ async def posts(
     *,
     mfa_code: TSecretStrValue | None = None,
     base_url: str = "https://www.parentsquare.com",
+    pages: int = 1,
 ):
     """Yield ParentSquare posts as dlt records."""
     async with _client(username, password, mfa_code=mfa_code, base_url=base_url) as client:
-        for post in await client.fetch_all_posts():
-            yield post.to_record()
+        for school in await client.discover_schools():
+            for post in await client.fetch_posts(school, pages=pages):
+                yield post.to_record()
+
+
+@dlt.resource(name="group_posts", write_disposition="merge", primary_key="source_id")
+async def group_posts(
+    username: str = dlt.secrets.value,
+    password: str = dlt.secrets.value,
+    *,
+    mfa_code: TSecretStrValue | None = None,
+    base_url: str = "https://www.parentsquare.com",
+    pages: int = 1,
+):
+    """Yield posts from each ParentSquare group feed.
+
+    Group feeds are kept in their own resource because a post can be visible
+    in both a school feed and a group feed.  The feed-scoped ``source_id``
+    prevents dlt's merge key from collapsing those two memberships while the
+    original ParentSquare ``id`` remains available for joins and deduplication
+    within a feed.
+    """
+    async with _client(username, password, mfa_code=mfa_code, base_url=base_url) as client:
+        linked_students = await client.discover_students()
+        for school in await client.discover_schools():
+            groups_for_school = await client.fetch_groups(school, students=linked_students)
+            for group in groups_for_school:
+                for post in await client.fetch_group_posts(school, group, pages=pages):
+                    record = post.to_record()
+                    record["source_id"] = f"school:{school.id}:group:{group.id}:post:{post.id}"
+                    yield record
 
 
 @dlt.resource(name="calendar_events", write_disposition="merge", primary_key="id")
@@ -139,6 +169,20 @@ async def groups(
                 yield group.to_record()
 
 
+@dlt.resource(name="school_features", write_disposition="replace", primary_key="school_id")
+async def school_features(
+    username: str = dlt.secrets.value,
+    password: str = dlt.secrets.value,
+    *,
+    mfa_code: TSecretStrValue | None = None,
+    base_url: str = "https://www.parentsquare.com",
+):
+    """Yield navigation capabilities exposed by each visible school."""
+    async with _client(username, password, mfa_code=mfa_code, base_url=base_url) as client:
+        for school in await client.discover_schools():
+            yield (await client.fetch_school_features(school)).to_record()
+
+
 @dlt.source(name="parentsquare")
 def parentsquare(
     username: str = dlt.secrets.value,
@@ -147,18 +191,20 @@ def parentsquare(
     mfa_code: TSecretStrValue | None = None,
     base_url: str = "https://www.parentsquare.com",
     include_context: bool = False,
+    pages: int = 1,
 ):
-    """Return the default posts and calendar resources.
+    """Return the default school, group-post, and calendar resources.
 
     ``username`` and ``password`` are required secrets when omitted. An MFA
     code is optional and should normally be passed for a single run rather
     than stored as a long-lived pipeline setting. Set ``include_context=True``
     to explicitly include parent-visible schools, students, dashboards, and
-    groups. Context resources are opt-in because they contain household and
-    school-directory data.
+    groups, and school features. Context resources are opt-in because they
+    contain household and school-directory data.
     """
     resources = [
-        posts(username, password, mfa_code=mfa_code, base_url=base_url),
+        posts(username, password, mfa_code=mfa_code, base_url=base_url, pages=pages),
+        group_posts(username, password, mfa_code=mfa_code, base_url=base_url, pages=pages),
         calendar_events(username, password, mfa_code=mfa_code, base_url=base_url),
     ]
     if include_context:
@@ -168,6 +214,7 @@ def parentsquare(
                 students(username, password, mfa_code=mfa_code, base_url=base_url),
                 student_dashboards(username, password, mfa_code=mfa_code, base_url=base_url),
                 groups(username, password, mfa_code=mfa_code, base_url=base_url),
+                school_features(username, password, mfa_code=mfa_code, base_url=base_url),
             ]
         )
     return resources
