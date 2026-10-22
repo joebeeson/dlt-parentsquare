@@ -33,3 +33,4 @@ jobs:
           else
             gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --generate-notes --verify-tag
           fi
+
